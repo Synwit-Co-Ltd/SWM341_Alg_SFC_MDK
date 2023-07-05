@@ -58,16 +58,14 @@ void DMA2D_PixelFill(DMA2D_LayerSetting * outLayer, uint32_t color)
 	
 	DMA2D->L[DMA2D_LAYER_OUT].MAR = outLayer->Address;
 	DMA2D->L[DMA2D_LAYER_OUT].OR  = outLayer->LineOffset;
-	
-	DMA2D->L[DMA2D_LAYER_OUT].PFCCR = (outLayer->ColorMode << DMA2D_PFCCR_CFMT_Pos) |
-									  (outLayer->AlphaMode << DMA2D_PFCCR_AINV_Pos) |
-									  (outLayer->Alpha     << DMA2D_PFCCR_ALPHA_Pos);
+	DMA2D->L[DMA2D_LAYER_OUT].PFCCR = (outLayer->ColorMode << DMA2D_PFCCR_CFMT_Pos);
 	
 	DMA2D->NLR = ((outLayer->LineCount - 1) << DMA2D_NLR_NLINE_Pos) |
 				 ((outLayer->LinePixel - 1) << DMA2D_NLR_NPIXEL_Pos);
 	
-	DMA2D->CR = (3 << DMA2D_CR_MODE_Pos) |
-				(1 << DMA2D_CR_START_Pos);
+	DMA2D->CR &= ~DMA2D_CR_MODE_Msk;
+	DMA2D->CR |= (3 << DMA2D_CR_MODE_Pos) |
+				 (1 << DMA2D_CR_START_Pos);
 }
 
 
@@ -83,6 +81,7 @@ void DMA2D_PixelMove(DMA2D_LayerSetting * fgLayer, DMA2D_LayerSetting * outLayer
 {
 	DMA2D->L[DMA2D_LAYER_FG].MAR = fgLayer->Address;
 	DMA2D->L[DMA2D_LAYER_FG].OR  = fgLayer->LineOffset;
+	DMA2D->L[DMA2D_LAYER_FG].PFCCR = (fgLayer->ColorMode << DMA2D_PFCCR_CFMT_Pos);
 	
 	DMA2D->L[DMA2D_LAYER_OUT].MAR = outLayer->Address;
 	DMA2D->L[DMA2D_LAYER_OUT].OR  = outLayer->LineOffset;
@@ -90,8 +89,9 @@ void DMA2D_PixelMove(DMA2D_LayerSetting * fgLayer, DMA2D_LayerSetting * outLayer
 	DMA2D->NLR = ((outLayer->LineCount - 1) << DMA2D_NLR_NLINE_Pos) |
 				 ((outLayer->LinePixel - 1) << DMA2D_NLR_NPIXEL_Pos);
 	
-	DMA2D->CR = (0 << DMA2D_CR_MODE_Pos) |
-				(1 << DMA2D_CR_START_Pos);
+	DMA2D->CR &= ~DMA2D_CR_MODE_Msk;
+	DMA2D->CR |= (0 << DMA2D_CR_MODE_Pos) |
+				 (1 << DMA2D_CR_START_Pos);
 }
 
 
@@ -107,23 +107,18 @@ void DMA2D_PixelConvert(DMA2D_LayerSetting * fgLayer, DMA2D_LayerSetting * outLa
 {
 	DMA2D->L[DMA2D_LAYER_FG].MAR = fgLayer->Address;
 	DMA2D->L[DMA2D_LAYER_FG].OR  = fgLayer->LineOffset;
-	
-	DMA2D->L[DMA2D_LAYER_FG].PFCCR = (fgLayer->ColorMode << DMA2D_PFCCR_CFMT_Pos) |
-									 (fgLayer->AlphaMode << DMA2D_PFCCR_AINV_Pos) |
-									 (fgLayer->Alpha     << DMA2D_PFCCR_ALPHA_Pos);
+	DMA2D->L[DMA2D_LAYER_FG].PFCCR = (fgLayer->ColorMode << DMA2D_PFCCR_CFMT_Pos);
 	
 	DMA2D->L[DMA2D_LAYER_OUT].MAR = outLayer->Address;
 	DMA2D->L[DMA2D_LAYER_OUT].OR  = outLayer->LineOffset;
-	
-	DMA2D->L[DMA2D_LAYER_OUT].PFCCR = (outLayer->ColorMode << DMA2D_PFCCR_CFMT_Pos) |
-									  (outLayer->AlphaMode << DMA2D_PFCCR_AINV_Pos) |
-									  (outLayer->Alpha     << DMA2D_PFCCR_ALPHA_Pos);
+	DMA2D->L[DMA2D_LAYER_OUT].PFCCR = (outLayer->ColorMode << DMA2D_PFCCR_CFMT_Pos);
 	
 	DMA2D->NLR = ((outLayer->LineCount - 1) << DMA2D_NLR_NLINE_Pos) |
 				 ((outLayer->LinePixel - 1) << DMA2D_NLR_NPIXEL_Pos);
 	
-	DMA2D->CR = (1 << DMA2D_CR_MODE_Pos) |
-				(1 << DMA2D_CR_START_Pos);
+	DMA2D->CR &= ~DMA2D_CR_MODE_Msk;
+	DMA2D->CR |= (1 << DMA2D_CR_MODE_Pos) |
+				 (1 << DMA2D_CR_START_Pos);
 }
 
 
@@ -140,30 +135,26 @@ void DMA2D_PixelBlend(DMA2D_LayerSetting * fgLayer, DMA2D_LayerSetting * bgLayer
 {
 	DMA2D->L[DMA2D_LAYER_FG].MAR = fgLayer->Address;
 	DMA2D->L[DMA2D_LAYER_FG].OR  = fgLayer->LineOffset;
-	
 	DMA2D->L[DMA2D_LAYER_FG].PFCCR = (fgLayer->ColorMode << DMA2D_PFCCR_CFMT_Pos) |
 									 (fgLayer->AlphaMode << DMA2D_PFCCR_AINV_Pos) |
 									 (fgLayer->Alpha     << DMA2D_PFCCR_ALPHA_Pos);
 	
 	DMA2D->L[DMA2D_LAYER_BG].MAR = bgLayer->Address;
 	DMA2D->L[DMA2D_LAYER_BG].OR  = bgLayer->LineOffset;
-	
 	DMA2D->L[DMA2D_LAYER_BG].PFCCR = (bgLayer->ColorMode << DMA2D_PFCCR_CFMT_Pos) |
 									 (bgLayer->AlphaMode << DMA2D_PFCCR_AINV_Pos) |
 									 (bgLayer->Alpha     << DMA2D_PFCCR_ALPHA_Pos);
 	
 	DMA2D->L[DMA2D_LAYER_OUT].MAR = outLayer->Address;
 	DMA2D->L[DMA2D_LAYER_OUT].OR  = outLayer->LineOffset;
-	
-	DMA2D->L[DMA2D_LAYER_OUT].PFCCR = (outLayer->ColorMode << DMA2D_PFCCR_CFMT_Pos) |
-									  (outLayer->AlphaMode << DMA2D_PFCCR_AINV_Pos) |
-									  (outLayer->Alpha     << DMA2D_PFCCR_ALPHA_Pos);
+	DMA2D->L[DMA2D_LAYER_OUT].PFCCR = (outLayer->ColorMode << DMA2D_PFCCR_CFMT_Pos);
 	
 	DMA2D->NLR = ((outLayer->LineCount - 1) << DMA2D_NLR_NLINE_Pos) |
 				 ((outLayer->LinePixel - 1) << DMA2D_NLR_NPIXEL_Pos);
 	
-	DMA2D->CR = (2 << DMA2D_CR_MODE_Pos) |
-				(1 << DMA2D_CR_START_Pos);
+	DMA2D->CR &= ~DMA2D_CR_MODE_Msk;
+	DMA2D->CR |= (2 << DMA2D_CR_MODE_Pos) |
+				 (1 << DMA2D_CR_START_Pos);
 }
 
 

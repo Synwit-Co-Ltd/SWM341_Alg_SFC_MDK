@@ -10,8 +10,8 @@ typedef struct {
 } ADC_InitStructure;
 
 typedef struct {
-	uint8_t  channels;		//ADC序列转换通道选中，ADC_CH0、ADC_CH1、... ... 、ADC_CH7及其组合（即“按位或”运算）
-	uint8_t  trig_src;		//ADC序列触发方式：ADC_TRIGGER_CPU、ADC_TRIGGER_TIMER2、ADC_TRIGGER_TIMER3、... ...
+	uint16_t channels;		//ADC序列转换通道选中，ADC_CH0、ADC_CH1、... ... 、ADC_CH7及其组合（即“按位或”运算）
+	uint8_t  trig_src;		//ADC序列触发方式：ADC_TRIGGER_SW、ADC_TRIGGER_TIMER2、ADC_TRIGGER_TIMER3、... ...
 	uint16_t conv_cnt;		//ADC序列转换次数，可取值1--256
 	uint8_t  samp_tim;		//ADC序列采样时间，可取值ADC_SAMPLE_1CLOCK、ADC_SAMPLE_2CLOCK、ADC_SAMPLE_4CLOCK、ADC_SAMPLE_8CLOCK
 } ADC_SEQ_InitStructure;
@@ -23,29 +23,33 @@ typedef struct {
 	uint16_t LowerLimitIEn;	//ADC转换结果小于LowerLimit中断使能
 } ADC_CMP_InitStructure;
 
-#define ADC_CH0		0x01
-#define ADC_CH1		0x02
-#define ADC_CH2		0x04
-#define ADC_CH3		0x08
-#define ADC_CH4		0x10
-#define ADC_CH5		0x20
-#define ADC_CH6		0x40
-#define ADC_CH7		0x80
+#define ADC_CH0		0x001
+#define ADC_CH1		0x002
+#define ADC_CH2		0x004
+#define ADC_CH3		0x008
+#define ADC_CH4		0x010
+#define ADC_CH5		0x020
+#define ADC_CH6		0x040
+#define ADC_CH7		0x080
+#define ADC_CH8		0x100
+#define ADC_CH9		0x200
+#define ADC_CH10	0x400
+#define ADC_CH11	0x800
 
 #define ADC_SEQ0	0x1
 #define ADC_SEQ1	0x2
 #define ADC_SEQ2	0x4
 #define ADC_SEQ3	0x8
 
-#define ADC_CLKSRC_HRC			0
-#define ADC_CLKSRC_XTAL			1
-#define ADC_CLKSRC_PLL          2
-#define ADC_CLKSRC_HRC_DIV4		(0 + 4*2)
-#define ADC_CLKSRC_XTAL_DIV4	(1 + 4*2)
-#define ADC_CLKSRC_PLL_DIV4     (2 + 4*2)
-#define ADC_CLKSRC_HRC_DIV8		(0 + 4*3)
-#define ADC_CLKSRC_XTAL_DIV8	(1 + 4*3)
-#define ADC_CLKSRC_PLL_DIV8     (2 + 4*3)
+#define ADC_CLKSRC_HRC          ((0 << 2) | 0)
+#define ADC_CLKSRC_XTAL         ((0 << 2) | 1)
+#define ADC_CLKSRC_PLL          ((0 << 2) | 2)
+#define ADC_CLKSRC_HRC_DIV4     ((2 << 2) | 0)
+#define ADC_CLKSRC_XTAL_DIV4    ((2 << 2) | 1)
+#define ADC_CLKSRC_PLL_DIV4     ((2 << 2) | 2)
+#define ADC_CLKSRC_HRC_DIV8     ((3 << 2) | 0)
+#define ADC_CLKSRC_XTAL_DIV8    ((3 << 2) | 1)
+#define ADC_CLKSRC_PLL_DIV8     ((3 << 2) | 2)
 
 #define ADC_AVG_SAMPLE1			0
 #define ADC_AVG_SAMPLE2			1	//一次启动连续采样、转换2次，并计算两次结果的平均值作为转换结果
@@ -53,13 +57,11 @@ typedef struct {
 #define ADC_AVG_SAMPLE8			3
 
 #define ADC_TRIGGER_NO			0
-#define ADC_TRIGGER_CPU			1
+#define ADC_TRIGGER_SW			1	//软件启动
 #define ADC_TRIGGER_TIMER2		2
 #define ADC_TRIGGER_TIMER3		3
-#define ADC_TRIGGER_EXTRIG0		4	
-#define ADC_TRIGGER_EXTRIG1		5	
-#define ADC_TRIGGER_EXTRIG2		6
-#define ADC_TRIGGER_EXTRIG3		7
+#define ADC_TRIGGER_EXTRIG0		4
+#define ADC_TRIGGER_EXTRIG1		5
 #define ADC_TRIGGER_PWM0		0x10
 #define ADC_TRIGGER_PWM1		0x11
 #define ADC_TRIGGER_PWM2		0x12

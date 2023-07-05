@@ -59,6 +59,8 @@ uint32_t SDIO_Init(uint32_t freq)
 	
 	while((SDIO->CR2 & SDIO_CR2_CLKRDY_Msk) == 0);
 	
+	for(int i = 0; i < CyclesPerUs * 10; i++) __NOP();
+	
 	SDIO->IM = 0xFFFFFFFF;
 	
 	
@@ -77,7 +79,7 @@ uint32_t SDIO_Init(uint32_t freq)
 		if(res != SD_RES_OK)
 			return res;
 		
-		if(resp != 0x120) return SD_RES_ERR;	//不是SD卡，可能是MMC卡
+		if((resp & SD_CS_APP_CMD) == 0) return SD_RES_ERR;
 		
 		if(SD_cardInfo.CardType == SDIO_STD_CAPACITY_SD_CARD_V2_0)
 			SDIO_SendCmd(SD_CMD_SD_APP_OP_COND, 0x80100000|0x40000000, SD_RESP_32b, &resp);
@@ -121,6 +123,8 @@ uint32_t SDIO_Init(uint32_t freq)
 	
 	
 	SDIO_SendCmd(SD_CMD_SET_BLOCKLEN, 512, SD_RESP_32b, &resp);		//固定块大小位512字节
+	
+	SD_cardInfo.CardBlockSize = 512;
 	
 	SDIO->BLK = 512;
 	
@@ -538,8 +542,8 @@ void parseCSD(uint32_t CSD_Tab[4])
 		/*!< Byte 10 */
 		tmp = (uint8_t)((CSD_Tab[2] & 0x0000FF00) >> 8);
 		
-		SD_cardInfo.CardCapacity = (SD_cardInfo.SD_csd.DeviceSize + 1) * 512 * 1024;
-		SD_cardInfo.CardBlockSize = 512;    
+		SD_cardInfo.CardCapacity = (uint64_t)(SD_cardInfo.SD_csd.DeviceSize + 1) * 512 * 1024;
+		SD_cardInfo.CardBlockSize = 512;
 	}
 	
 	SD_cardInfo.SD_csd.EraseGrSize = (tmp & 0x40) >> 6;

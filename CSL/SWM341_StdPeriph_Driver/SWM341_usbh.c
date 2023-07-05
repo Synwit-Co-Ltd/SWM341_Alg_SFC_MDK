@@ -35,9 +35,12 @@ static uint32_t Speed;
 ******************************************************************************************************************************************/
 void USBH_HW_Init(void)
 {
+	SYS->USBCR = 0;
+	for(int i = 0; i < CyclesPerUs; i++) __NOP();
 	SYS->USBCR |= (1 << SYS_USBCR_RST48M_Pos); __DSB();
 	SYS->USBCR |= (1 << SYS_USBCR_RST12M_Pos); __DSB();
 	SYS->USBCR |= (1 << SYS_USBCR_RSTPLL_Pos); __DSB();
+	for(int i = 0; i < CyclesPerUs; i++) __NOP();
 	
 	SYS->USBCR &= ~SYS_USBCR_ROLE_Msk;
 	SYS->USBCR |= (2 << SYS_USBCR_ROLE_Pos);
@@ -46,7 +49,10 @@ void USBH_HW_Init(void)
 	
 	SYS->CLKEN0 |= (0x01 << SYS_CLKEN0_USB_Pos);
 	
+	USBH->CR = USBH_CR_FLUSHFF_Msk;
+	
 	USBD->DEVCR = (0 << USBD_DEVCR_DEVICE_Pos) |	// 主机模式
+				  (3 << USBD_DEVCR_SPEED_Pos)  |
 				  (1 << USBD_DEVCR_CSRDONE_Pos);
 	
 	USBH->PORTSR = USBH_PORTSR_POWER_Msk;
@@ -102,9 +108,6 @@ uint32_t USBH_IsPortEnabled(void)
 uint32_t USBH_GetDeviceSpeed(void)
 {
 	Speed = (USBH->PORTSR & USBH_PORTSR_SPEED_Msk) ? 2 : 3;
-	
-	USBD->DEVCR &= ~USBD_DEVCR_SPEED_Msk;
-	USBD->DEVCR |= (Speed << USBD_DEVCR_SPEED_Pos);
 	
 	return Speed;
 }
@@ -277,7 +280,7 @@ uint32_t USBH_ReadRxBuffer(uint8_t *buff, uint32_t size)
 	if(size > real_size)
 		size = real_size;
 	
-	memcpy(buff, (uint8_t *)USBH->RXBUF, size);
+	USBD_memcpy(buff, (uint8_t *)USBH->RXBUF, size);
 	
 	return size;
 }

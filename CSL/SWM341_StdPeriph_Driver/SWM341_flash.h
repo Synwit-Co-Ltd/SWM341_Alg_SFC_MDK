@@ -13,7 +13,7 @@ void Flash_Param_at_xMHz(uint32_t x);
 
 
 
-typedef void (*IAP_Cache_Reset_t)(uint32_t cfg);
+typedef void (*IAP_Cache_Reset_t)(uint32_t cfg, uint32_t flag);
 typedef int  (*IAP_Flash_Param_t)(uint32_t cfg0, uint32_t cfg1, uint32_t flag);
 typedef int  (*IAP_Flash_Erase_t)(uint32_t sector, uint32_t flag);
 typedef int  (*IAP_Flash_Write_t)(uint32_t flash_addr, uint32_t ram_addr, uint32_t count, uint32_t flag);

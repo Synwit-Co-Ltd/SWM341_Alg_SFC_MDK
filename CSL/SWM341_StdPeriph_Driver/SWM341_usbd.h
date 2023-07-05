@@ -94,6 +94,20 @@ static __INLINE void USBD_RxIntClr(void)
 }
 
 
+static __INLINE void USBD_PullUp_Enable(void)
+{
+	SYS->USBPHYCR &= ~SYS_USBPHYCR_OPMODE_Msk;
+	SYS->USBPHYCR |= (0 << SYS_USBPHYCR_OPMODE_Pos);	//Normal Operation
+}
+
+static __INLINE void USBD_PullUp_Disable(void)
+{
+	SYS->USBPHYCR &= ~SYS_USBPHYCR_OPMODE_Msk;
+	SYS->USBPHYCR |= (1 << SYS_USBPHYCR_OPMODE_Pos);  	//Non-Driving, DP Pull-Up disable
+}
+
+
+
 void USBD_Init(void);
 void USBD_Open(void);
 void USBD_Close(void);

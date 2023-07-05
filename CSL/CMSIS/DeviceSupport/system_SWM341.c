@@ -42,7 +42,7 @@
 #define __HSI		(20000000UL)		//高速内部时钟
 #define __LSI		(   32000UL)		//低速内部时钟
 #define __HSE		(12000000UL)		//高速外部时钟
-#define __LSE		(   32000UL)		//低速外部时钟
+#define __LSE		(   32768UL)		//低速外部时钟
 
 
 /********************************** PLL 设定 **********************************************
@@ -50,9 +50,9 @@
  * PLL输出频率 = PLL输入时钟 / INDIV * 4 * FBDIV / OUTDIV = VCO输出频率 / OUTDIV
  * 注意：VCO输出频率需要在 [600MHz, 1400MHz] 之间
  *****************************************************************************************/ 
-#define SYS_PLL_SRC   	SYS_CLK_XTAL	//可取值SYS_CLK_20MHz、SYS_CLK_XTAL
+#define SYS_PLL_SRC   	SYS_CLK_20MHz	//可取值SYS_CLK_20MHz、SYS_CLK_XTAL
 
-#define PLL_IN_DIV		3
+#define PLL_IN_DIV		5
 
 #define PLL_FB_DIV		60
 
@@ -211,6 +211,9 @@ void SystemInit(void)
 
 	PORTM->PULLD &= ~(1 << PIN1);
 	PORTM->PULLU &= ~((1 << PIN2) | (1 << PIN3));
+	
+	SYS->USBPHYCR &= ~SYS_USBPHYCR_OPMODE_Msk;
+	SYS->USBPHYCR |= (1 << SYS_USBPHYCR_OPMODE_Pos);  	//Non-Driving, DP Pull-Up disable
 }
 
 
@@ -241,9 +244,8 @@ static void delay_3ms(void)
 
 void switchTo20MHz(void)
 {
-	SYS->HRCCR = (1 << SYS_HRCCR_ON_Pos)  |
-				 (0 << SYS_HRCCR_DBL_Pos) |			//HRC = 20Hz
-				 (1 << SYS_HRCCR_LDOON_Pos);
+	SYS->HRCCR = (1 << SYS_HRCCR_ON_Pos) |
+				 (0 << SYS_HRCCR_DBL_Pos);			//HRC = 20Hz
 	
 	delay_3ms();
 	
@@ -268,9 +270,8 @@ void switchTo2M5Hz(void)
 
 void switchTo40MHz(void)
 {
-	SYS->HRCCR = (1 << SYS_HRCCR_ON_Pos)  |
-				 (1 << SYS_HRCCR_DBL_Pos) |			//HRC = 40MHz
-				 (1 << SYS_HRCCR_LDOON_Pos);
+	SYS->HRCCR = (1 << SYS_HRCCR_ON_Pos) |
+				 (1 << SYS_HRCCR_DBL_Pos);			//HRC = 40MHz
 	
 	delay_3ms();
 	
@@ -294,14 +295,12 @@ void switchTo5MHz(void)
 }
 
 void switchToXTAL(uint32_t div8)
-{
-	uint32_t i;
-	
+{	
 	switchTo20MHz();
 	
 	PORT_Init(PORTA, PIN3, PORTA_PIN3_XTAL_IN,  0);
 	PORT_Init(PORTA, PIN4, PORTA_PIN4_XTAL_OUT, 0);
-	SYS->XTALCR |= (1 << SYS_XTALCR_ON_Pos) | (15 << SYS_XTALCR_DRV_Pos);
+	SYS->XTALCR |= (1 << SYS_XTALCR_ON_Pos) | (15 << SYS_XTALCR_DRV_Pos) | (1 << SYS_XTALCR_DET_Pos);
 	
 	delay_3ms();
 	delay_3ms();
@@ -358,7 +357,7 @@ void switchToXTAL_32K(void)
 	
 	switchTo20MHz();
 	
-	SYS->XTALCR |= (1 << SYS_XTALCR_32KON_Pos) | (7 << SYS_XTALCR_32KDRV_Pos);
+	SYS->XTALCR |= (1 << SYS_XTALCR_32KON_Pos) | (7 << SYS_XTALCR_32KDRV_Pos) | (1 << SYS_XTALCR_32KDET_Pos);
 	for(i = 0; i < 1000; i++) __NOP();
 	
 	SYS->CLKDIVx_ON = 1;
@@ -374,14 +373,11 @@ void switchToXTAL_32K(void)
 }
 
 void PLLInit(void)
-{
-	uint32_t i;
-	
+{	
 	if(SYS_PLL_SRC == SYS_CLK_20MHz)
 	{
-		SYS->HRCCR = (1 << SYS_HRCCR_ON_Pos)  |
-					 (0 << SYS_HRCCR_DBL_Pos) |		//HRC = 20Hz
-					 (1 << SYS_HRCCR_LDOON_Pos);
+		SYS->HRCCR = (1 << SYS_HRCCR_ON_Pos) |
+					 (0 << SYS_HRCCR_DBL_Pos);		//HRC = 20Hz
 		
 		delay_3ms();
 		
@@ -391,7 +387,7 @@ void PLLInit(void)
 	{
 		PORT_Init(PORTA, PIN3, PORTA_PIN3_XTAL_IN,  0);
 		PORT_Init(PORTA, PIN4, PORTA_PIN4_XTAL_OUT, 0);
-		SYS->XTALCR |= (1 << SYS_XTALCR_ON_Pos) | (31 << SYS_XTALCR_DRV_Pos);
+		SYS->XTALCR |= (1 << SYS_XTALCR_ON_Pos) | (15 << SYS_XTALCR_DRV_Pos) | (1 << SYS_XTALCR_DET_Pos);
 		
 		delay_3ms();
 		delay_3ms();

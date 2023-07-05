@@ -48,6 +48,8 @@ void USBD_Init(void)
 	uint32_t total_len = pCfg[2] + (pCfg[3] << 8);
 	uint32_t epie = 0x00010001;
 	
+	SYS->USBCR = 0;
+	for(int i = 0; i < CyclesPerUs; i++) __NOP();
 	SYS->USBCR |= (1 << SYS_USBCR_RST48M_Pos); __DSB();
 	SYS->USBCR |= (1 << SYS_USBCR_RST12M_Pos); __DSB();
 	SYS->USBCR |= (1 << SYS_USBCR_RSTPLL_Pos); __DSB();
@@ -60,9 +62,7 @@ void USBD_Init(void)
 	SYS->CLKEN0 |= (0x01 << SYS_CLKEN0_USB_Pos);
 	
 	USBD_EPConfig(ep_reg++, 0, USB_EP_IN,  USB_EP_CTRL, USBD_Info.CtrlPkSiz, 0, 0, 0);	// Control In
-#ifndef NO_CTRL_OUT
 	USBD_EPConfig(ep_reg++, 0, USB_EP_OUT, USB_EP_CTRL, USBD_Info.CtrlPkSiz, 0, 0, 0);	// Control Out
-#endif
 	
 	while(pCfg < (USBD_Info.DescConfig + total_len))
 	{
@@ -103,6 +103,9 @@ void USBD_Init(void)
 				  (1 << USBD_DEVIE_SETCFG_Pos);
 	
 	USBD->EPIE = epie;
+	
+	SYS->USBPHYCR &= ~SYS_USBPHYCR_OPMODE_Msk;
+	SYS->USBPHYCR |= (0 << SYS_USBPHYCR_OPMODE_Pos);	//Normal Operation
 }
 
 

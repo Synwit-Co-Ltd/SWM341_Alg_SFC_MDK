@@ -18,9 +18,6 @@ int Init(unsigned long adr, unsigned long clk, unsigned long fnc)
 	if(fnc == 1)
 	{
 		__disable_irq();
-		NVIC->ICER[0] = 0xFFFFFFFF;
-		NVIC->ICER[1] = 0xFFFFFFFF;
-		NVIC->ICER[2] = 0xFFFFFFFF;
 		
 		SYS->PRSTEN = 0x55;
 		SYS->PRSTR0 = 0xFFFFFFFF;
@@ -30,9 +27,7 @@ int Init(unsigned long adr, unsigned long clk, unsigned long fnc)
 		SYS->PRSTR1 = 0;
 		SYS->PRSTEN = 0;
 		
-		SYS->CLKEN0 |= (1 << SYS_CLKEN0_ANAC_Pos);
-		SYS->HRCCR |= (1 << SYS_HRCCR_DBL_Pos);
-		CyclesPerUs = 40;
+		SystemInit();
 		
 		/* SFC使用专用的FSPI（Flash SPI）接口连接SPI Flash */
 		PORT_Init(PORTD, PIN5, PORTD_PIN5_FSPI_SCLK,  0);
@@ -50,6 +45,25 @@ int Init(unsigned long adr, unsigned long clk, unsigned long fnc)
 		SFC_Init(&SFC_initStruct);
 		
 		SFC_QuadSwitch(1);
+	}
+	else if(fnc == 2)
+	{
+		// SFC 写入速度较慢，改用 GPIO 模拟 SPI 执行写入操作
+		GPIO_SetBit(GPIOD, PIN6);
+		GPIO_SetBit(GPIOD, PIN5);
+		GPIO_INIT(GPIOD, PIN5, GPIO_OUTPUT);
+		GPIO_INIT(GPIOD, PIN6, GPIO_OUTPUT);
+		GPIO_INIT(GPIOD, PIN8, GPIO_OUTPUT);
+		GPIO_INIT(GPIOD, PIN7, GPIO_INPUT);
+	}
+	else if(fnc == 3)
+	{
+		PORT_Init(PORTD, PIN5, PORTD_PIN5_FSPI_SCLK,  0);
+		PORT_Init(PORTD, PIN6, PORTD_PIN6_FSPI_SSEL,  0);
+		PORT_Init(PORTD, PIN8, PORTD_PIN8_FSPI_MOSI,  1);
+		PORT_Init(PORTD, PIN7, PORTD_PIN7_FSPI_MISO,  1);
+		PORT_Init(PORTD, PIN3, PORTD_PIN3_FSPI_DATA2, 1);
+		PORT_Init(PORTD, PIN4, PORTD_PIN4_FSPI_DATA3, 1);
 	}
 
 	return 0;
@@ -83,7 +97,8 @@ int EraseSector(unsigned long adr)
 	
 	adr = adr - 0x70000000;
 	
- 	SFC_Erase(adr);
+ 	SFC_EraseEx(adr, SFC_CMD_ERASE_BLOCK64KB, 0);
+	while(SFC_FlashBusy()) __NOP();
  	
  	return 0;
 }
@@ -105,33 +120,12 @@ int ProgramPage(unsigned long adr, unsigned long sz, unsigned char *buf)
 	
 	adr = adr - 0x70000000;
 	
-	SFC_Write(adr, (uint32_t *)buf, (sz + 3)/4);
+	for(int i = 0; i < sz; i += 256)
+	{
+		SFC_GPIOWrite(adr + i, (uint32_t *)&buf[i], ((sz - i >= 256) ? 256 : (sz - i)) / 4);
+	}
 	
   	return 0;
-}
-
-
-/****************************************************************************************************************************************** 
-* 函数名称: BlankCheck()
-* 功能说明:	Blank Check Block in Flash Memory
-* 输    入: unsigned long adr	Block Start Address
-*			unsigned long sz	Block Size (in bytes)
-*			unsigned char pat	Block Pattern
-* 输    出: int					0 - OK,  1 - Failed
-* 注意事项: 无
-******************************************************************************************************************************************/
-int BlankCheck(unsigned long adr, unsigned long sz, unsigned char pat)
-{		
-	if((adr < 0x70000000) || (adr > 0x71000000))
-		return 1;
-		
-	uint32_t lpat = (pat << 24) | (pat << 16) | (pat << 8) | pat;
-	
-	for(int i = 0; i < sz; i += 4)
-		if(*((volatile unsigned int *)(adr+i)) != lpat)
-			return 1;
-	
-	return 0;
 }
 
 

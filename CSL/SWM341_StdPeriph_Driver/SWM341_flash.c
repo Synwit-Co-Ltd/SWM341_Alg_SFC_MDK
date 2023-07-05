@@ -39,22 +39,9 @@ uint32_t FLASH_Erase(uint32_t addr)
 	
 	__disable_irq();
 	
-#if 0
 	IAP_Flash_Erase(addr/4096, 0x0B11FFAC);
 	
-	IAP_Cache_Reset((FMC->CACHE | FMC_CACHE_CCLR_Msk) >> 16);	// Cache Clear
-	/* 量产版改成
 	IAP_Cache_Reset((FMC->CACHE | FMC_CACHE_CCLR_Msk), 0x0B11FFAC);	// Cache Clear
-	*/
-#else
-	while((FMC->STAT & FMC_STAT_IDLE_Msk) == 0) __NOP();
-	
-	FMC->ERASE = FMC_ERASE_REQ_Msk | (addr << FMC_ERASE_ADDR_Pos);
-	for(int i = 0; i < CyclesPerUs; i++) __NOP();
-	while(FMC->STAT & FMC_STAT_ERASEBUSY_Msk) __NOP();
-	
-	FMC->CACHE |= (1 << FMC_CACHE_CCLR_Pos);	// Cache Clear
-#endif
 	
 	__enable_irq();
 	
@@ -78,35 +65,9 @@ uint32_t FLASH_Write(uint32_t addr, uint32_t buff[], uint32_t count)
 	
 	__disable_irq();
 	
-#if 0
 	IAP_Flash_Write(addr, (uint32_t)buff, count/4, 0x0B11FFAC);
 	
-	IAP_Cache_Reset((FMC->CACHE | FMC_CACHE_CCLR_Msk) >> 16);	// Cache Clear
-	/* 量产版改成
 	IAP_Cache_Reset((FMC->CACHE | FMC_CACHE_CCLR_Msk), 0x0B11FFAC);	// Cache Clear
-	*/
-#else
-	while(!(FMC->STAT & FMC_STAT_IDLE_Msk)) __NOP();
-	
-	FMC->CACHE |= (1 << FMC_CACHE_PROGEN_Pos);
-	
-	FMC->ADDR = addr;
-	for(int i = 0; i < count; i += 4)
-	{
-		FMC->DATA = buff[i];
-		FMC->DATA = buff[i+1];
-		FMC->DATA = buff[i+2];
-		FMC->DATA = buff[i+3];
-		
-		while(!(FMC->STAT & FMC_STAT_FIFOEMPTY_Msk)) __NOP();
-	}
-	for(int i = 0; i < CyclesPerUs; i++) __NOP();
-	while(FMC->STAT & FMC_STAT_PROGBUSY_Msk) __NOP();
-	
-	FMC->CACHE &= ~(1 << FMC_CACHE_PROGEN_Pos);
-	
-	FMC->CACHE |= (1 << FMC_CACHE_CCLR_Pos);	// Cache Clear
-#endif
 	
 	__enable_irq();
 	

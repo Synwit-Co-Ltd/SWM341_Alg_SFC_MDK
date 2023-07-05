@@ -1,10 +1,10 @@
 /****************************************************************************************************************************************** 
-* ÎÄ¼şÃû³Æ: usbh_msc_scsi.c
-* ¹¦ÄÜËµÃ÷:	
-* ¼¼ÊõÖ§³Ö:	http://www.synwit.com.cn/e/tool/gbook/?bid=1
-* ×¢ÒâÊÂÏî: 
-* °æ±¾ÈÕÆÚ:	V1.1.0		2020Äê11ÔÂ3ÈÕ
-* Éı¼¶¼ÇÂ¼:  
+* æ–‡ä»¶åç§°: usbh_msc_scsi.c
+* åŠŸèƒ½è¯´æ˜:	
+* æŠ€æœ¯æ”¯æŒ:	http://www.synwit.com.cn/e/tool/gbook/?bid=1
+* æ³¨æ„äº‹é¡¹: 
+* ç‰ˆæœ¬æ—¥æœŸ:	V1.1.0		2020å¹´11æœˆ3æ—¥
+* å‡çº§è®°å½•:  
 *
 *
 *******************************************************************************************************************************************
@@ -34,7 +34,7 @@
 
 #define DATLEN_READ_CAPACITY10 		8		// Data Stage Length
 #define DATLEN_MODE_SENSE6 			63
-#define DATLEN_REQUEST_SENSE   		63
+#define DATLEN_REQUEST_SENSE   		18
 
 
 static uint8_t SCSI_Busy = 0;
@@ -43,11 +43,11 @@ static uint8_t DataInBuffer[64];
 
 
 /****************************************************************************************************************************************** 
-* º¯ÊıÃû³Æ:	USBH_MSC_TestUnitReady()
-* ¹¦ÄÜËµÃ÷:	Issues 'Test unit ready' command to the device.
-* Êä    Èë: ÎŞ
-* Êä    ³ö: ÎŞ
-* ×¢ÒâÊÂÏî: ÎŞ
+* å‡½æ•°åç§°:	USBH_MSC_TestUnitReady()
+* åŠŸèƒ½è¯´æ˜:	Issues 'Test unit ready' command to the device.
+* è¾“    å…¥: æ— 
+* è¾“    å‡º: æ— 
+* æ³¨æ„äº‹é¡¹: æ— 
 ******************************************************************************************************************************************/
 USBH_MSC_Status USBH_MSC_TestUnitReady(void)
 {
@@ -83,11 +83,11 @@ USBH_MSC_Status USBH_MSC_TestUnitReady(void)
 
 
 /****************************************************************************************************************************************** 
-* º¯ÊıÃû³Æ:	USBH_MSC_ReadCapacity10()
-* ¹¦ÄÜËµÃ÷:	Issue the read capacity command to the device.
-* Êä    Èë: ÎŞ
-* Êä    ³ö: ÎŞ
-* ×¢ÒâÊÂÏî: ÎŞ
+* å‡½æ•°åç§°:	USBH_MSC_ReadCapacity10()
+* åŠŸèƒ½è¯´æ˜:	Issue the read capacity command to the device.
+* è¾“    å…¥: æ— 
+* è¾“    å‡º: æ— 
+* æ³¨æ„äº‹é¡¹: æ— 
 ******************************************************************************************************************************************/
 USBH_MSC_Status USBH_MSC_ReadCapacity10(void)
 {
@@ -139,12 +139,12 @@ USBH_MSC_Status USBH_MSC_ReadCapacity10(void)
 
 
 /****************************************************************************************************************************************** 
-* º¯ÊıÃû³Æ:	USBH_MSC_ModeSense6()
-* ¹¦ÄÜËµÃ÷:	Issue the Mode Sense6 Command to the device.
+* å‡½æ•°åç§°:	USBH_MSC_ModeSense6()
+* åŠŸèƒ½è¯´æ˜:	Issue the Mode Sense6 Command to the device.
 *			Used for reading the WriteProtect Status of the Mass-Storage device.
-* Êä    Èë: ÎŞ
-* Êä    ³ö: ÎŞ
-* ×¢ÒâÊÂÏî: ÎŞ
+* è¾“    å…¥: æ— 
+* è¾“    å‡º: æ— 
+* æ³¨æ„äº‹é¡¹: æ— 
 ******************************************************************************************************************************************/
 USBH_MSC_Status USBH_MSC_ModeSense6(void)
 {
@@ -200,11 +200,11 @@ USBH_MSC_Status USBH_MSC_ModeSense6(void)
 
 
 /****************************************************************************************************************************************** 
-* º¯ÊıÃû³Æ:	USBH_MSC_Read10()
-* ¹¦ÄÜËµÃ÷:	Issue the read command to the device.
-* Êä    Èë: ÎŞ
-* Êä    ³ö: ÎŞ
-* ×¢ÒâÊÂÏî: ÎŞ
+* å‡½æ•°åç§°:	USBH_MSC_Read10()
+* åŠŸèƒ½è¯´æ˜:	Issue the read command to the device.
+* è¾“    å…¥: æ— 
+* è¾“    å‡º: æ— 
+* æ³¨æ„äº‹é¡¹: æ— 
 ******************************************************************************************************************************************/
 USBH_MSC_Status USBH_MSC_Read10(uint8_t *buffer, uint32_t address, uint32_t nbOfbytes)
 {
@@ -255,11 +255,11 @@ USBH_MSC_Status USBH_MSC_Read10(uint8_t *buffer, uint32_t address, uint32_t nbOf
 
 
 /****************************************************************************************************************************************** 
-* º¯ÊıÃû³Æ:	USBH_MSC_Write10()
-* ¹¦ÄÜËµÃ÷:	Issue the write command to the device.
-* Êä    Èë: ÎŞ
-* Êä    ³ö: ÎŞ
-* ×¢ÒâÊÂÏî: ÎŞ
+* å‡½æ•°åç§°:	USBH_MSC_Write10()
+* åŠŸèƒ½è¯´æ˜:	Issue the write command to the device.
+* è¾“    å…¥: æ— 
+* è¾“    å‡º: æ— 
+* æ³¨æ„äº‹é¡¹: æ— 
 ******************************************************************************************************************************************/
 USBH_MSC_Status USBH_MSC_Write10(uint8_t *buffer, uint32_t address, uint32_t nbOfbytes)
 {
@@ -310,11 +310,11 @@ USBH_MSC_Status USBH_MSC_Write10(uint8_t *buffer, uint32_t address, uint32_t nbO
 
 
 /****************************************************************************************************************************************** 
-* º¯ÊıÃû³Æ:	USBH_MSC_RequestSense()
-* ¹¦ÄÜËµÃ÷:	Issues the Request Sense command to the device.
-* Êä    Èë: ÎŞ
-* Êä    ³ö: ÎŞ
-* ×¢ÒâÊÂÏî: ÎŞ
+* å‡½æ•°åç§°:	USBH_MSC_RequestSense()
+* åŠŸèƒ½è¯´æ˜:	Issues the Request Sense command to the device.
+* è¾“    å…¥: æ— 
+* è¾“    å‡º: æ— 
+* æ³¨æ„äº‹é¡¹: æ— 
 ******************************************************************************************************************************************/
 USBH_MSC_Status USBH_MSC_RequestSense(void)
 {
@@ -324,7 +324,7 @@ USBH_MSC_Status USBH_MSC_RequestSense(void)
 	{
 		USBH_CBWData.CBWTransferLength = DATLEN_REQUEST_SENSE;
 		USBH_CBWData.CBWFlags = USB_REQ_D2H;
-		USBH_CBWData.CBWCBLength = 10;
+		USBH_CBWData.CBWCBLength = 6;
 		USBH_CBWData.CBWCB[0]  = OPCODE_REQUEST_SENSE;
 		USBH_CBWData.CBWCB[1]  = 0x00;
 		USBH_CBWData.CBWCB[2]  = 0x00;
@@ -337,7 +337,6 @@ USBH_MSC_Status USBH_MSC_RequestSense(void)
 		USBH_BOTXfer.bCSWStatus = USBH_MSC_BUSY;
 		USBH_BOTXfer.BOTState = USBH_MSC_BOT_CBW;
 		
-		USBH_BOTXfer.MSCStateBkp = USBH_BOTXfer.MSCState;
 		USBH_BOTXfer.MSCState = USBH_MSC_BOT_TRANSFER;
 
 		SCSI_Busy = 1;

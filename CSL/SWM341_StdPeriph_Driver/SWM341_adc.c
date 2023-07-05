@@ -114,8 +114,20 @@ void ADC_SEQ_Init(ADC_TypeDef * ADCx, uint32_t seq, ADC_SEQ_InitStructure * init
 {
 	uint32_t pos = ADC_seq2pos(seq);
 	
-	ADCx->SEQCHN &= ~(0xFFu << pos);
-	ADCx->SEQCHN |= (initStruct->channels << pos);
+	switch(seq)
+	{
+	case ADC_SEQ0:
+	case ADC_SEQ1:
+		ADCx->SEQCHN0 &= ~(0xFFFu              << (pos * 2));
+		ADCx->SEQCHN0 |= (initStruct->channels << (pos * 2));
+		break;
+	
+	case ADC_SEQ2:
+	case ADC_SEQ3:
+		ADCx->SEQCHN1 &= ~(0xFFFu              << ((pos - 16) * 2));
+		ADCx->SEQCHN1 |= (initStruct->channels << ((pos - 16) * 2));
+		break;
+	}
 	
 	ADCx->SEQTRG &= ~(0xFFu << pos);
 	ADCx->SEQTRG |= (initStruct->trig_src << pos);
@@ -123,8 +135,8 @@ void ADC_SEQ_Init(ADC_TypeDef * ADCx, uint32_t seq, ADC_SEQ_InitStructure * init
 	ADCx->SEQCOV &= ~(0xFFu << pos);
 	ADCx->SEQCOV |= ((initStruct->conv_cnt ? initStruct->conv_cnt - 1 : 0) << pos);
 	
-	ADCx->SEQSMP &= ~(0xFFu << pos);
-	ADCx->SEQSMP |= (initStruct->samp_tim << pos);
+	ADCx->SEQSMP &= ~(0xFFu << (pos >> 1));
+	ADCx->SEQSMP |= (initStruct->samp_tim << (pos >> 1));
 }
 
 /****************************************************************************************************************************************** 
@@ -243,7 +255,7 @@ void ADC_Stop(ADC_TypeDef * ADCx, uint32_t seq)
 * 功能说明:	从指定序列读取转换结果
 * 输    入: ADC_TypeDef * ADCx		指定要设置的ADC，有效值包括ADC0、ADC1
 *			uint32_t seq			指定要设置的ADC序列，有效值为ADC_SEQ0、ADC_SEQ1、ADC_SEQ2、ADC_SEQ3
-*			uint32_t *chn			转换结果来自哪个通道，ADC_CH0、ADC_CH1、... ...、ADC_CH7
+*			uint32_t *chn			转换结果来自哪个通道，ADC_CH0、ADC_CH1、... ...、ADC_CH10、ADC_CH11
 * 输    出: uint32_t				读取到的转换结果
 * 注意事项: 无
 ******************************************************************************************************************************************/

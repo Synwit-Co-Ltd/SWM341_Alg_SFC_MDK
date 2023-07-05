@@ -26,8 +26,8 @@
 * 函数名称: TIMR_Init()
 * 功能说明:	TIMR定时器/计数器初始化
 * 输    入: TIMR_TypeDef * TIMRx	指定要被设置的定时器，有效值包括TIMR0、TIMR1、TIMR2、TIMR3、TIMR4、BTIMR0、BTIMR1、...、BTIMR11
-*			uint32_t mode			对于TIMR0~3: TIMR_MODE_TIMER、TIMR_MODE_COUNTER、TIMR_MODE_OC、TIMR_MODE_IC
-*									对于BTIMR0~3: TIMR_MODE_TIMER、TIMR_MODE_OC
+*			uint32_t mode			对于TIMR0~4: TIMR_MODE_TIMER、TIMR_MODE_COUNTER、TIMR_MODE_OC、TIMR_MODE_IC
+*									对于BTIMR0~11: TIMR_MODE_TIMER、TIMR_MODE_OC
 *			uint16_t prediv			预分频，取值1-256
 *			uint32_t period			定时/计数周期，取值1-16777216
 *			uint32_t int_en			中断使能
@@ -389,8 +389,7 @@ uint32_t TIMR_INTStat(TIMR_TypeDef * TIMRx)
 ******************************************************************************************************************************************/
 void TIMR_OC_Init(TIMR_TypeDef * TIMRx, uint32_t match, uint32_t match_int_en, uint32_t init_lvl)
 {
-	TIMRx->OCMAT0 = match;
-	TIMRx->OCMAT1 = TIMRx->LOAD;
+	TIMRx->OCMAT = match;
 	if(init_lvl) TIMRx->OCCR |=  (1 << TIMR_OCCR_INITLVL_Pos);
 	else         TIMRx->OCCR &= ~(1 << TIMR_OCCR_INITLVL_Pos);
 	
@@ -508,7 +507,7 @@ void TIMR_OC_OutputDis(TIMR_TypeDef * TIMRx, uint32_t level)
 ******************************************************************************************************************************************/
 void TIMR_OC_SetMatch(TIMR_TypeDef * TIMRx, uint32_t match)
 {
-	TIMRx->OCMAT0 = match;
+	TIMRx->OCMAT = match;
 }
 
 /****************************************************************************************************************************************** 
@@ -520,7 +519,7 @@ void TIMR_OC_SetMatch(TIMR_TypeDef * TIMRx, uint32_t match)
 ******************************************************************************************************************************************/
 uint32_t TIMR_OC_GetMatch(TIMR_TypeDef * TIMRx)
 {	
-	return TIMRx->OCMAT0;
+	return TIMRx->OCMAT;
 }
 
 /****************************************************************************************************************************************** 

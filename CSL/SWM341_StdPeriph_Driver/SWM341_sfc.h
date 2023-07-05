@@ -26,9 +26,11 @@ typedef struct {
 
 #define SFC_CMD_READ_JEDEC			0x9F
 #define SFC_CMD_ERASE_CHIP			0x60
+#define SFC_CMD_WRITE_ENABLE		0x06
+#define SFC_CMD_PAGE_PROGRAM		0x02
 #define SFC_CMD_ERASE_SECTOR 		0x20
 #define SFC_CMD_ERASE_BLOCK32KB		0x52
-#define SFC_CMD_ERASE_BLOCK64KB		0xDB
+#define SFC_CMD_ERASE_BLOCK64KB		0xD8	//W25Q32
 #define SFC_CMD_READ_STATUS_REG1	0x05
 #define SFC_CMD_READ_STATUS_REG2	0x35
 #define SFC_CMD_READ_STATUS_REG3	0x15
@@ -37,14 +39,16 @@ typedef struct {
 #define SFC_CMD_WRITE_STATUS_REG3	0x11
 
 
+#define SFC_STATUS_REG_BUSY_Pos		0
 #define SFC_STATUS_REG_QUAD_Pos		9
 
 
 void SFC_Init(SFC_InitStructure * initStruct);
 uint32_t SFC_ReadJEDEC(void);
-uint32_t SFC_Erase(uint32_t addr);
-uint32_t SFC_EraseEx(uint32_t addr, uint8_t cmd);
-uint32_t SFC_Write(uint32_t addr, uint32_t buff[], uint32_t cnt);
+void SFC_Erase(uint32_t addr, uint8_t wait);
+void SFC_EraseEx(uint32_t addr, uint8_t cmd, uint8_t wait);
+void SFC_Write(uint32_t addr, uint32_t buff[], uint32_t cnt);
+void SFC_GPIOWrite(uint32_t addr, uint32_t buff[], uint32_t cnt);
 void SFC_Read(uint32_t addr, uint32_t buff[], uint32_t cnt);
 
 
@@ -52,11 +56,7 @@ uint8_t SFC_ReadStatusReg(uint8_t cmd);
 void SFC_WriteStatusReg(uint8_t cmd, uint16_t reg);
 void SFC_QuadSwitch(uint8_t on);
 uint8_t SFC_QuadState(void);
-
-
-#define SFC_RES_OK	0
-#define SFC_RES_TO	1	//Timeout
-#define SFC_RES_ERR	2
+uint8_t SFC_FlashBusy(void);
 
 
 #endif //__SWM341_SFC_H__
